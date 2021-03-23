@@ -1,0 +1,6 @@
+172.22.2.129
+3306
+itouser
+sinaps281082
+//SINAPS-INZH-01/itoDB/
+C:/itoDB/
