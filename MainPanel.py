@@ -785,6 +785,7 @@ class Ui_MainDB(QDialog):
         self.FirstKTblUpdate()
 
         self.thUpdateOTable()
+        self.btn_RefreshTreeStates.click()
         GlobalValues.checkTreeStatesUpdate = True
 
     #работа с оборудованием
@@ -1166,9 +1167,9 @@ class Ui_MainDB(QDialog):
 
                     if GlobalValues.checkTreeStatesUpdate == True:
                         GlobalValues.checkTreeStatesUpdate = False
-                        # while GlobalValues.CHECK_OTBL_UPDATE or GlobalValues.CHECK_KTBL_UPDATE:
-                        #     print('waiting')
-                        # print('print BTN States Refresh!')
+                        while GlobalValues.CHECK_OTBL_UPDATE or GlobalValues.CHECK_KTBL_UPDATE:
+                            print('waiting')
+                        print('print BTN States Refresh!')
                         self.btn_RefreshTreeStates.click()
 
                     if GlobalValues.checkTreeReBuild == True:
@@ -3474,10 +3475,12 @@ class Ui_MainDB(QDialog):
             count = treecount + 3
             i = 0
             for i in range(0, count, 1):
+                GlobalValues.TH_OBJ_COUNTER = i
                 if i > 3:
-                    th = threading.Thread(self.getObjState(i))
+                    th = threading.Thread(target= self.getObjState)
                     th.start()
                 i+=1
+
 
             # while treecount != GlobalValues.TH_OBJ_COUNTER:
             #     self.tree_Obj.raise_()
@@ -3485,21 +3488,24 @@ class Ui_MainDB(QDialog):
         except Exception as ex:
             print('treeStates thread FAIL!')
 
-    def getObjState(self, ind):
-        checkObj = self.getTreeObjStat(ind)
-        curInd = ind - 3
-
-        if checkObj == '2':
-            self.tree_Obj.topLevelItem(curInd).setBackground(0, QtGui.QBrush(self.green_gradient))
-        if checkObj == '1':
-            self.tree_Obj.topLevelItem(curInd).setBackground(0, QtGui.QBrush(self.yellow_gradient))
-        if checkObj == '0':
-            self.tree_Obj.topLevelItem(curInd).setBackground(0, QtGui.QBrush(self.red_gradient))
-        self.MainFrame.raise_()
-        self.MainFrame.lower()
-
-
-
+    def getObjState(self):
+        try:
+            ind = GlobalValues.TH_OBJ_COUNTER
+            curInd = ind - 3
+            i = ind
+            checkObj = self.getTreeObjStat(i)
+            if checkObj == '2':
+                self.tree_Obj.topLevelItem(curInd).setBackground(0, QtGui.QBrush(self.green_gradient))
+            if checkObj == '1':
+                self.tree_Obj.topLevelItem(curInd).setBackground(0, QtGui.QBrush(self.yellow_gradient))
+            if checkObj == '0':
+                self.tree_Obj.topLevelItem(curInd).setBackground(0, QtGui.QBrush(self.red_gradient))
+            self.MainFrame.raise_()
+            self.MainFrame.lower()
+                # print(curInd)
+        except:
+            print('TH OBJ STATE WAS FAIL!!! (' + str(curInd) + ')')
+            self.getObjState(ind)
 
     def openDialogBox(self):
         self.uiDialogBox = Ui_DialogBox()
@@ -3667,24 +3673,6 @@ class Ui_MainDB(QDialog):
 
         wb.save(str(curExName))
         os.system('start excel.exe ' + curExName)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
